@@ -49,20 +49,68 @@ app.param('userid', function (req, res, next, value) {
     console.log("\nRequest received with userid: " + value);
     next();
 });
-app.get('/db', function (req, res) {
-    var response = 'server status: \n ';
+app.get('/dbAdd', function (req, res) {
     console.log('\nParam URL: ' + req.originalUrl);
-    mongoClient.connect("mongodb://localhost/todomvc", function (err, db) {
-        var adminDB = db.admin();
-        adminDB.serverStatus(function (err, status) {
-            console.log(status);
-            response = response + '\n' + status;
+    var dbURL = "mongodb://";
+    if (dbcreds) {
+        dbURL = dbURL + dbcreds.username + ':' + dbcreds.password + '@' + dbcreds.host + ':' + dbcreds.port + '/' + dbcreds.db
+    } else {
+        dbURL = dbURL + "localhost/" + "enote";
+    }
+    console.log("add-" + dbURL);
+    mongoClient.connect(dbURL, function (err, db) {
+        db.collection("log_sent_Data", function (err, myCol) {
+            var d = new Date(2009, 2, 1);
+            for (var i = 0; i < 10; i++) {
+                var r = Math.floor(Math.random() * 200) + 400;
+                addObject(myCol, {
+                    date: d, count: r
+                });
+            }
+        });
+        setTimeout(function () {
             db.close();
+            res.send('add data success');
+        }, 3000);
+    });
+});
+app.get('/test', function (req, res) {
+    console.log('\nParam URL: ' + req.originalUrl);
+    var d = new Date(2009,2,1);
+    for (var i = 0; i < 10; i++) {
+        var r = Math.floor(Math.random() * 200) + 400;
+        console.log(new Date(d.getTime() + i * 24 * 60 * 60 * 1000), r);
+    }
+    res.send('success');
+});
+app.get('/dbGet', function (req, res) {
+    console.log('\nParam URL: ' + req.originalUrl);
+    var dbURL = "mongodb://";
+    if (dbcreds) {
+        dbURL = dbURL + dbcreds.username + ':' + dbcreds.password + '@' + dbcreds.host + ':' + dbcreds.port + '/' + dbcreds.db
+    } else {
+        dbURL = dbURL + "localhost/" + "enote";
+    }
+    console.log("get-"+dbURL);
+    mongoClient.connect(dbURL, function (err, db) {
+        db.collection("log_sent_Data", function (err, nebulae) {
+            nebulae.find(function (err, items) {
+                items.toArray(function (err, itemArr) {
+                    res.send(itemArr);
+                });
+            });
         });
     });
-    res.send(response);
 });
 
+function addObject(collection, object) {
+    collection.insert(object, function (err, result) {
+        if (!err) {
+            console.log("Inserted : ");
+            console.log(result);
+        }
+    });
+}
 
 //    /find?author=Brad&title=Node
 //    /book/12:15
