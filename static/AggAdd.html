@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+    <title>Aggregate CRUD</title>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css" />
+    <style>
+        span {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div ng-controller="myController">
+        <h2>Add Aggregate</h2>
+        {{status}}
+        <hr>
+        <label>Date:</label>
+        <input type="date" ng-model="aggDate"><br>
+        <label>Instance:</label>
+        <input type="text" ng-model="aggInstance"><br>
+        <label>Count:</label>
+        <input type="number" ng-model="aggCount"><br>
+
+        <input type="button" ng-click="AddAgg(aggDate,aggInstance,aggCount)"
+               value="Add Sent data" />
+        <hr>
+        <input type="button" ng-click="getAgg()"
+               value="Get Aggregate" />
+        <h3>Days Data</h3>
+        <div ng-repeat="day in days">
+            {{day}}
+            [<span ng-click="removeAgg(day.SentDate)">remove</span>]
+        </div>
+    </div>
+    <script src="/lib/angular.min.js"></script>
+    <script src="/js/AggAdd.js"></script>
+</body>
+</html>
